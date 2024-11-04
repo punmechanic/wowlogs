@@ -1,18 +1,19 @@
 import { LoaderFunctionArgs, useLoaderData } from "react-router"
 import { NavLink } from "react-router-dom"
-import { getPullsForEncounter, Pull } from "../api/pulls"
+import { Pull } from "../api/pulls"
+import { Encounter, fetchEncounterInfo } from "../api/encounter"
 
 interface Params {
 	encounterId: string
 }
 
 interface Data {
-	pulls: Pull[]
+	encounter: Encounter
 }
 
 export async function loadData({ params: { encounterId } }: LoaderFunctionArgs<Params>): Promise<Data> {
 	return {
-		pulls: await getPullsForEncounter(encounterId!)
+		encounter: (await fetchEncounterInfo(encounterId!))!
 	};
 }
 
@@ -31,7 +32,13 @@ export function PullSelector({ pulls }: PullSelectorProps) {
 }
 
 export default function EncounterOverview() {
-	const { pulls } = useLoaderData() as Data;
+	const { encounter } = useLoaderData() as Data;
+	const pulls = encounter.pulls.map(pull => {
+		return {
+			...pull,
+			title: `${encounter.title} - ${pull.title}`
+		};
+	});
 
 	return <>
 		<PullSelector pulls={pulls} />

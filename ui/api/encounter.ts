@@ -1,10 +1,9 @@
 import { Pull, pulls } from './pulls';
 
 const encounters: Encounter[] = [
-	{ id: '1', title: "Encounter 1", pulls },
-	{ id: '2', title: "Encounter 2", pulls },
-	{ id: '3', title: "Encounter 3", pulls },
-	{ id: '4', title: "Encounter 4", pulls }
+	{ id: '1', title: "Ulgrax the Devourer Mythic", pulls },
+	{ id: '2', title: "Sikran, Captain of the Sureki Mythic", pulls },
+	{ id: '3', title: "Mists of Tirna Scithe", pulls },
 ]
 
 export interface Encounter {

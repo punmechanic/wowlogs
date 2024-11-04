@@ -25,7 +25,3 @@ export interface Pull {
 	timestamp: Date
 	result: 'wipe' | 'reset' | 'kill'
 }
-
-export async function getPullsForEncounter(encounterId: string): Promise<Pull[]> {
-	return pulls;
-}

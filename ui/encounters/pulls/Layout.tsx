@@ -1,9 +1,10 @@
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav, Navbar, NavItem } from "react-bootstrap";
 import { LoaderFunctionArgs, NavLink, Outlet, useLoaderData } from "react-router-dom";
-import { ChevronRight, HouseFill } from "../../shared/icons";
-import { getPullsForEncounter, Pull } from "../../api/pulls";
+import { HouseFill } from "../../shared/icons";
+import { Pull } from "../../api/pulls";
 import cx from 'classnames';
 import styles from './Layout.module.css';
+import { fetchEncounterInfo } from "../../api/encounter";
 
 interface Params {
 	encounterId: string
@@ -16,7 +17,13 @@ interface Data {
 }
 
 export async function loadData({ params: { encounterId, pullId } }: LoaderFunctionArgs<Params>): Promise<Data> {
-	const pulls = await getPullsForEncounter(encounterId!);
+	const encounter = (await fetchEncounterInfo(encounterId!))!;
+	const pulls = encounter.pulls.map(pull => {
+		return {
+			...pull,
+			title: `${encounter.title} - ${pull.title}`
+		};
+	});
 	const pullInfo = pulls.find(x => x.id === pullId);
 	return {
 		pullName: pullInfo?.title!,
