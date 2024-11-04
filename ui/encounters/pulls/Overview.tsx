@@ -3,6 +3,8 @@ import { addMilliseconds, parse } from "date-fns";
 import { useEffect, useRef } from "react";
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
+import { Nav, NavItem } from "react-bootstrap";
+import { NavLink } from "react-router-dom";
 
 Chart.register(zoomPlugin);
 
