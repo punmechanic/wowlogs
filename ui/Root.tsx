@@ -23,16 +23,12 @@ interface Encounter {
 
 export function Root() {
 	const { encounters } = useLoaderData() as RootData;
-	useEffect(() => {
-		console.log(window.location.href);
-	});
-
 	return <>
-		<nav>
+		<ol>
 			{encounters.map(encounter => (
-				<NavLink key={encounter.id} to={`/encounters/${encounter.id}`}>{encounter.title}</NavLink>
+				<li><NavLink key={encounter.id} to={`/encounters/${encounter.id}`}>{encounter.title}</NavLink></li>
 			))}
-		</nav>
+		</ol>
 
 		<Outlet />
 	</>;
