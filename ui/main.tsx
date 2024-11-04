@@ -1,7 +1,9 @@
-import { App } from './App';
 import { createRoot } from 'react-dom/client';
 import './globals.css';
+import { RouterProvider } from 'react-router';
+import { createBrowserRouter } from 'react-router-dom';
+import routes from './routes';
 
 const root = document.getElementById('root');
-
-createRoot(root!).render(<App />);
+const router = createBrowserRouter(routes);
+createRoot(root!).render(<RouterProvider router={router} />);
