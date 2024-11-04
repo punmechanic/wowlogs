@@ -1,40 +1,63 @@
-import { Nav, Navbar, NavItem } from "react-bootstrap";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav, Navbar, NavItem } from "react-bootstrap";
 import { LoaderFunctionArgs, NavLink, Outlet, useLoaderData } from "react-router-dom";
 import { ChevronRight, HouseFill } from "../../shared/icons";
+import { getPullsForEncounter, Pull } from "../../api/pulls";
 import cx from 'classnames';
 import styles from './Layout.module.css';
+import { fetchEncounterInfo } from "../../api/encounter";
 
 interface Params {
-	encounterId: number
-	pullId: number
+	encounterId: string
+	pullId: string
 }
 
 interface Data {
 	encounterName: string
 	pullName: string
+	pulls: Pull[]
 }
 
 export async function loadData({ params: { encounterId, pullId } }: LoaderFunctionArgs<Params>): Promise<Data> {
+	const [pulls, encounter] = await Promise.all([
+		getPullsForEncounter(encounterId!),
+		fetchEncounterInfo(encounterId!)
+	]);
+
+	const pullInfo = pulls.find(x => x.id === pullId);
 	return {
-		encounterName: `Encounter #${encounterId}`,
-		pullName: `Pull #${pullId}`
+		encounterName: encounter?.title!,
+		pullName: pullInfo?.title!,
+		pulls
 	};
 }
 
+function PullHeader() {
+	const { encounterName, pullName, pulls } = useLoaderData() as Data;
+	return <Navbar className={styles.TitleBar}>
+		<NavLink className={cx(styles.HomeButton, HouseFill)} to='/'>Home</NavLink>
+
+		<div className={styles.CurrentPage}>
+			<span className={styles.EncounterName}>{encounterName}</span>
+			<i className={cx(styles.Divider, ChevronRight)} />
+			<Dropdown>
+				<DropdownToggle title={pullName}>{pullName}</DropdownToggle>
+				<DropdownMenu as='ol'>
+					{pulls.map(pull => (
+						<li key={pull.id}>
+							<DropdownItem key={pull.id}>
+								<NavLink to={`'../${pull.id}`}>{pull.title}</NavLink>
+							</DropdownItem>
+						</li>
+					))}
+				</DropdownMenu>
+			</Dropdown>
+		</div>
+	</Navbar>
+}
+
 export default function PullLayout() {
-	const { encounterName, pullName } = useLoaderData() as Data;
-
 	return <>
-		<Navbar className={styles.TitleBar}>
-			<NavLink className={cx(styles.HomeButton, HouseFill)} to='/'>Home</NavLink>
-
-			<div className={styles.CurrentPage}>
-				<span className={styles.EncounterName}>{encounterName}</span>
-				<i className={cx(styles.Divider, ChevronRight)} />
-				<span className={styles.PullName}>{pullName}</span>
-			</div>
-		</Navbar>
-
+		<PullHeader />
 		<Nav>
 			<NavItem>
 				<NavLink className='nav-link' to=''>Summary</NavLink>

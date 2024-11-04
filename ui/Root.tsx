@@ -1,5 +1,5 @@
-import { useEffect } from "react"
 import { NavLink, Outlet, useLoaderData } from "react-router-dom"
+import { Encounter, listAllEncounters } from "./api/encounter"
 
 interface RootData {
 	encounters: Encounter[]
@@ -7,18 +7,8 @@ interface RootData {
 
 export async function loadData(): Promise<RootData> {
 	return {
-		encounters: [
-			{ id: '1', title: "Encounter 1" },
-			{ id: '2', title: "Encounter 2" },
-			{ id: '3', title: "Encounter 3" },
-			{ id: '4', title: "Encounter 4" }
-		]
-	}
-}
-
-interface Encounter {
-	id: string
-	title: string
+		encounters: await listAllEncounters()
+	};
 }
 
 export function Root() {
