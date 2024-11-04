@@ -1,11 +1,7 @@
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { addMilliseconds, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
-import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import styles from './DamageDone.module.css';
-
-Chart.register(zoomPlugin);
 
 interface PointTimeseries {
 	datasets: {
