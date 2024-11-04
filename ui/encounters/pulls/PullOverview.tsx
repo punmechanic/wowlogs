@@ -1,56 +1,62 @@
-import { Chart, ChartConfiguration, ChartData } from "chart.js/auto";
-import { addSeconds, getMilliseconds } from "date-fns";
-import { useEffect, useMemo, useRef } from "react";
+import { Chart, ChartConfiguration } from "chart.js/auto";
+import { parse } from "date-fns";
+import { useEffect, useRef } from "react";
 import 'chartjs-adapter-date-fns';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
-export async function loadData() {
-	return null;
+Chart.register(zoomPlugin);
+
+interface PointTimeseries {
+	startTime: Date
+	datasets: {
+		name: string
+		points: {
+			// X is the number of milliseconds since the startTime that the event occurred.
+			x: number,
+			// Y is the value of the event.
+			y: number
+		}[]
+	}[]
 }
 
-interface Timeseries {
-	name: string
-	// HACK: any is used to prevent TypeScript from complaining about us using Date, which is a valid option for time series axes.
-	points: { x: any, y: number }[]
-}
-
-
-function generateDummySeries(): Timeseries[] {
-	const date = new Date();
-	const offsetSeconds = 5;
-	const sets = ['Warrior', 'Mage'];
-	const numPoints = 100;
-
-	return sets.map(name => {
+function generatePointTimeseries(labels: string[], pointsPerSet: number, startTime: Date, offsetMillis: number): PointTimeseries {
+	const sets = labels.map(name => {
 		const points = [];
-		for (let i = 0; i < numPoints; i++) {
+		for (let i = 0; i < pointsPerSet; i++) {
 			points.push({
 				y: Math.random() * 200,
-				x: addSeconds(date, i * offsetSeconds)
+				x: i * offsetMillis
 			});
 		}
+
 		return {
 			name,
 			points
 		};
 	});
+
+	return {
+		startTime,
+		datasets: sets
+	};
+}
+
+// TODO: Add an All series which is the cumulative sum of all entries.
+// TODO: Aggregate data for a value that makes sense based on the current resolution of the time axis.
+// For example,  if the resolution of the time axis is 1 minute, it might not make sense to show every single data point at 500ms.
+const damageTimeseries = generatePointTimeseries(
+	['Warrior', 'Mage', 'Paladin'],
+	100,
+	parse('02/11/2014', 'MM/dd/yyyy', new Date()),
+	100
+);
+
+export async function loadData() {
+	return null;
 }
 
 function DamageChart() {
-	const data = useMemo(() => {
-		const data = generateDummySeries();
-		const datasets = data.map(set => {
-			return {
-				label: set.name,
-				data: set.points,
-				fill: false,
-				cubicInterpolationMode: 'monotone' as const
-			}
-		});
-
-		// TODO: Add an All series which is the cumulative sum of all entries.
-		return { datasets }
-	}, []);
-
+	const { datasets } = damageTimeseries;
 	const chartRef = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		if (chartRef.current == null) {
@@ -59,15 +65,36 @@ function DamageChart() {
 
 		const config: ChartConfiguration = {
 			type: 'line',
-			data,
+			data: {
+				datasets: datasets.map(set => {
+					return {
+						label: set.name,
+						data: set.points,
+						fill: false,
+						cubicInterpolationMode: 'monotone' as const
+					}
+				})
+			},
 			options: {
 				animation: false,
 				responsive: true,
+				events: ['mousedown', 'mouseup', 'mousemove'],
 				plugins: {
 					title: {
 						display: true,
 						text: 'Damage Chart'
 					},
+					zoom: {
+						zoom: {
+							wheel: {
+								enabled: true,
+							},
+							drag: {
+								enabled: true
+							},
+							mode: 'x'
+						}
+					}
 				},
 				interaction: {
 					intersect: false,
@@ -96,7 +123,7 @@ function DamageChart() {
 		return () => {
 			chart.destroy();
 		};
-	}, [data]);
+	}, []);
 	return <canvas ref={chartRef} />;
 }
 
