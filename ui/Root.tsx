@@ -16,7 +16,7 @@ export function Root() {
 	return <>
 		<ol>
 			{encounters.map(encounter => (
-				<li><NavLink key={encounter.id} to={`/encounters/${encounter.id}`}>{encounter.title}</NavLink></li>
+				<li key={encounter.id}><NavLink to={`/encounters/${encounter.id}`}>{encounter.title}</NavLink></li>
 			))}
 		</ol>
 

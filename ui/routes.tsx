@@ -5,7 +5,6 @@ import * as PullLayout from './encounters/pulls/Layout';
 
 export default [
 	{
-		path: '/',
 		element: <Root />,
 		loader: loadData,
 		index: true,

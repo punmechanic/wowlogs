@@ -3,6 +3,7 @@ import { addMilliseconds, parse } from "date-fns";
 import { useEffect, useRef } from "react";
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
+import styles from './Overview.module.css';
 
 Chart.register(zoomPlugin);
 
@@ -126,7 +127,7 @@ function DamageChart() {
 
 export default function PullOverview() {
 	return <>
-		<div style={{ maxWidth: 1000, maxHeight: 800 }}>
+		<div className={styles.ChartContainer}>
 			<DamageChart />
 		</div>
 	</>;
