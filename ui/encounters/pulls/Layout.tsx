@@ -59,10 +59,10 @@ export default function PullLayout() {
 				<NavLink className='nav-link' to=''>Summary</NavLink>
 			</NavItem>
 			<NavItem>
-				<NavLink className='nav-link disabled' to='damage' aria-disabled>Damage Done</NavLink>
+				<NavLink className='nav-link' to='damage-done'>Damage Done</NavLink>
 			</NavItem>
 			<NavItem>
-				<NavLink className='nav-link disabled' to='damage_taken' aria-disabled>Damage Taken</NavLink>
+				<NavLink className='nav-link disabled' to='damage-taken' aria-disabled>Damage Taken</NavLink>
 			</NavItem>
 			<NavItem>
 				<NavLink className='nav-link disabled' to='threat' aria-disabled>Threat</NavLink>
