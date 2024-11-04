@@ -78,6 +78,8 @@ function DamageChart() {
 			options: {
 				animation: false,
 				responsive: true,
+				maintainAspectRatio: true,
+				aspectRatio: 3,
 				events: ['mousedown', 'mouseup', 'mousemove'],
 				plugins: {
 					zoom: {

@@ -1,4 +1,6 @@
 .ChartContainer {
 	position: relative;
-	max-height: 500px;
+	max-height: 400px;
+	margin-left: 30px;
+	margin-right: 30px;
 }
