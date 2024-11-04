@@ -1,6 +1,6 @@
 import { loadData, Root } from './Root';
 import * as EncounterOverview from "./encounters/Overview";
-import * as PullOverview from "./encounters/pulls/Overview";
+import * as PullSummary from "./encounters/pulls/Summary";
 import * as PullLayout from './encounters/pulls/Layout';
 
 export default [
@@ -24,8 +24,8 @@ export default [
 				children: [
 					{
 						index: true,
-						loader: PullOverview.loadData,
-						element: <PullOverview.default />,
+						loader: PullSummary.loadData,
+						element: <PullSummary.default />,
 					}
 				]
 			}
