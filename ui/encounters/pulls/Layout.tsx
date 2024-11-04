@@ -45,7 +45,7 @@ function PullHeader() {
 					{pulls.map(pull => (
 						<li key={pull.id}>
 							<DropdownItem key={pull.id}>
-								<NavLink to={`'../${pull.id}`}>{pull.title}</NavLink>
+								<NavLink relative="path" to={`../${pull.id}`}>{pull.title}</NavLink>
 							</DropdownItem>
 						</li>
 					))}
