@@ -1,6 +1,6 @@
 import { Nav, Navbar, NavItem } from "react-bootstrap";
 import { LoaderFunctionArgs, NavLink, Outlet, useLoaderData } from "react-router-dom";
-import { ChevronRight } from "../../shared/icons";
+import { ChevronRight, HouseFill } from "../../shared/icons";
 import cx from 'classnames';
 import styles from './Layout.module.css';
 
@@ -26,6 +26,8 @@ export default function PullLayout() {
 
 	return <>
 		<Navbar className={styles.TitleBar}>
+			<NavLink className={cx(styles.HomeButton, HouseFill)} to='/'>Home</NavLink>
+
 			<div className={styles.CurrentPage}>
 				<span className={styles.EncounterName}>{encounterName}</span>
 				<i className={cx(styles.Divider, ChevronRight)} />

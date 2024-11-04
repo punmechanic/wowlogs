@@ -1,5 +1,15 @@
 .TitleBar {
-	display: flex;
-	align-content: center;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+
+	border: solid 1px black;
+}
+
+.HomeButton {
+	grid-column: 1;
+}
+
+.CurrentPage {
+	grid-column: 2;
+	justify-self: center;
 }
