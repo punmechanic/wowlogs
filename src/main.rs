@@ -7,13 +7,16 @@ fn main() {
     println!("Hello, world!");
 }
 
-/// A raw, unprocessed log record.
-#[derive(PartialEq, Debug)]
+/// An unprocessed log record.
+///
+/// The only processing done to Records is to separate and parse the timestamp from the fields.
+#[derive(Debug)]
 struct Record {
     timestamp: NaiveDateTime,
+    fields: Vec<String>,
 }
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug)]
 enum RecordParseError {
     #[error("header is malformed")]
     HeaderMalformed,
@@ -22,6 +25,13 @@ enum RecordParseError {
         #[from]
         source: chrono::ParseError,
     },
+    #[error("bad fields format")]
+    InvalidFieldsFormat {
+        #[from]
+        source: csv::Error,
+    },
+    #[error("missing fields")]
+    NoRecords,
 }
 
 impl Record {
@@ -49,10 +59,29 @@ impl FromStr for Record {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts = s.split_once("  ");
-        let (head, _tail) = parts.ok_or(RecordParseError::HeaderMalformed)?;
+        let (head, tail) = parts.ok_or(RecordParseError::HeaderMalformed)?;
         let ts = Self::parse_timestamp(head)?;
 
-        Ok(Record { timestamp: ts })
+        let reader = csv::ReaderBuilder::new()
+            .flexible(true)
+            .double_quote(true)
+            .has_headers(false)
+            .from_reader(tail.as_bytes());
+
+        // Because we are reading only a single log record, it is an error if the CSV reader has more than one row.
+        // We will silently ignore extra rows.
+        //
+        // This is inefficient and should be refactored later.
+        let row = reader
+            .into_records()
+            .next()
+            .ok_or(RecordParseError::NoRecords)??;
+
+        let fields = row.into_iter().map(|x| x.to_string()).collect();
+        Ok(Record {
+            timestamp: ts,
+            fields,
+        })
     }
 }
 
@@ -107,7 +136,7 @@ mod tests {
 
         for header in bad_headers {
             let res: Result<Record, RecordParseError> = header.parse();
-            assert_eq!(res, Err(RecordParseError::HeaderMalformed));
+            assert!(matches!(res, Err(RecordParseError::HeaderMalformed)));
         }
 
         Ok(())
@@ -122,6 +151,19 @@ mod tests {
         let time = NaiveTime::from_hms_milli_opt(17, 34, 0, 153).unwrap();
         let dt = date.and_time(time);
         assert_eq!(record.timestamp, dt);
+        assert_eq!(
+            record.fields,
+            [
+                "COMBAT_LOG_VERSION",
+                "21",
+                "ADVANCED_LOG_ENABLED",
+                "1",
+                "BUILD_VERSION",
+                "11.0.2",
+                "PROJECT_ID",
+                "1"
+            ]
+        );
 
         Ok(())
     }
