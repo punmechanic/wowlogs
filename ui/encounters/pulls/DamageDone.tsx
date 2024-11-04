@@ -1,6 +1,6 @@
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { addMilliseconds, parse } from "date-fns";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import styles from './DamageDone.module.css';
@@ -56,9 +56,17 @@ export async function loadData() {
 
 function DamageChart() {
 	const { datasets } = damageTimeseries;
-	const chartRef = useRef<HTMLCanvasElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const chartRef = useRef<Chart>();
+	const [zoomed, setZoomed] = useState(false);
+
+	const resetZoom = () => {
+		chartRef.current?.resetZoom();
+		setZoomed(false);
+	};
+
 	useEffect(() => {
-		if (chartRef.current == null) {
+		if (canvasRef.current == null) {
 			return;
 		}
 
@@ -84,6 +92,9 @@ function DamageChart() {
 				plugins: {
 					zoom: {
 						zoom: {
+							onZoom(_ctx) {
+								setZoomed(true)
+							},
 							wheel: {
 								enabled: true,
 							},
@@ -118,12 +129,17 @@ function DamageChart() {
 			},
 		};
 
-		const chart = new Chart(chartRef.current, config);
+		const chart = new Chart(canvasRef.current, config);
+		chartRef.current = chart;
 		return () => {
 			chart.destroy();
+			chartRef.current = undefined;
 		};
 	}, []);
-	return <canvas ref={chartRef} />;
+	return <>
+		<canvas ref={canvasRef} />
+		{zoomed && <button onClick={resetZoom}>Reset Zoom</button>}
+	</>
 }
 
 
@@ -131,6 +147,7 @@ export default function DamageDone() {
 	return <>
 		<div className={styles.ChartContainer}>
 			<DamageChart />
+
 		</div>
 	</>;
 }
