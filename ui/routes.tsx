@@ -4,6 +4,7 @@ import * as PullOverview from "./encounters/pulls/PullOverview";
 
 export default [
 	{
+		path: '/',
 		element: <Root />,
 		loader: loadData,
 		children: [
