@@ -1,39 +1,41 @@
-import { Chart, ChartConfiguration } from "chart.js/auto";
+import { Chart, ChartConfiguration, ChartData } from "chart.js/auto";
+import { addSeconds } from "date-fns";
 import { useEffect, useMemo, useRef } from "react";
+import 'chartjs-adapter-date-fns';
 
 export async function loadData() {
 	return null;
 }
 
+
 function DamageChart() {
-	const data = useMemo(() => {
+	const data: ChartData = useMemo(() => {
 		const DATA_COUNT = 12;
-		const labels = [];
-		for (let i = 0; i < DATA_COUNT; ++i) {
-			labels.push(i.toString());
-		}
-		const datapoints = [0, 20, 20, 60, 60, 120, NaN, 180, 120, 125, 105, 110, 170];
+		// const labels = [];
+
+		// This is dummy data.
+		const date = new Date();
+		// for (let i = 0; i < DATA_COUNT; ++i) {
+		// 	labels.push(i.toString());
+		// }
+
+		const offsetSeconds = 5;
+		const data = [0, 20, 20, 60, 60, 120, NaN, 180, 120, 125, 105, 110, 170];
+		const points = data.map((val, index) => {
+			return {
+				y: val,
+				x: addSeconds(date, index * offsetSeconds)
+			}
+		});
+
 		return {
-			labels: labels,
+			labels: [],
 			datasets: [
 				{
-					label: 'Cubic interpolation (monotone)',
-					data: datapoints,
-					// borderColor: Utils.CHART_COLORS.red,
+					label: 'Damage',
+					data: points,
 					fill: false,
 					cubicInterpolationMode: 'monotone',
-					tension: 0.4
-				}, {
-					label: 'Cubic interpolation',
-					data: datapoints,
-					// borderColor: Utils.CHART_COLORS.blue,
-					fill: false,
-					tension: 0.4
-				}, {
-					label: 'Linear interpolation (default)',
-					data: datapoints,
-					// borderColor: Utils.CHART_COLORS.green,
-					fill: false
 				}
 			]
 		};
@@ -47,13 +49,14 @@ function DamageChart() {
 
 		const config: ChartConfiguration = {
 			type: 'line',
-			data: data,
+			data,
 			options: {
+				animation: false,
 				responsive: true,
 				plugins: {
 					title: {
 						display: true,
-						text: 'Chart.js Line Chart - Cubic interpolation mode'
+						text: 'Damage Chart'
 					},
 				},
 				interaction: {
@@ -62,9 +65,7 @@ function DamageChart() {
 				scales: {
 					x: {
 						display: true,
-						title: {
-							display: true
-						}
+						type: 'timeseries',
 					},
 					y: {
 						display: true,
@@ -72,8 +73,7 @@ function DamageChart() {
 							display: true,
 							text: 'Value'
 						},
-						suggestedMin: -10,
-						suggestedMax: 200
+						suggestedMin: 0
 					}
 				}
 			},
@@ -91,7 +91,9 @@ function DamageChart() {
 export default function PullOverview() {
 	return <>
 		<h1>Damage Chart</h1>
-		<DamageChart />
+		<div style={{ maxWidth: 1000, maxHeight: 800 }}>
+			<DamageChart />
+		</div>
 	</>;
 }
 
