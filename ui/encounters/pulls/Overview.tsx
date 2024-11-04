@@ -3,8 +3,6 @@ import { addMilliseconds, parse } from "date-fns";
 import { useEffect, useRef } from "react";
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import { Nav, NavItem } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
 
 Chart.register(zoomPlugin);
 
@@ -45,7 +43,7 @@ function generatePointTimeseries(labels: string[], pointsPerSet: number, startTi
 // TODO: Aggregate data for a value that makes sense based on the current resolution of the time axis.
 // For example,  if the resolution of the time axis is 1 minute, it might not make sense to show every single data point at 500ms.
 const damageTimeseries = generatePointTimeseries(
-	['Warrior', 'Mage', 'Paladin'],
+	['Damage Done', 'Damage Taken', 'Healing'],
 	100,
 	parse('02/11/2014', 'MM/dd/yyyy', new Date()),
 	100
@@ -81,10 +79,6 @@ function DamageChart() {
 				responsive: true,
 				events: ['mousedown', 'mouseup', 'mousemove'],
 				plugins: {
-					title: {
-						display: true,
-						text: 'Damage Chart'
-					},
 					zoom: {
 						zoom: {
 							wheel: {
@@ -105,14 +99,15 @@ function DamageChart() {
 						display: true,
 						type: 'timeseries',
 						time: {
-							unit: 'second'
+							unit: 'second',
+							minUnit: "second"
 						}
 					},
 					y: {
 						display: true,
 						title: {
 							display: true,
-							text: 'Value'
+							text: 'Per Second Amounts'
 						},
 						suggestedMin: 0
 					}
@@ -131,7 +126,6 @@ function DamageChart() {
 
 export default function PullOverview() {
 	return <>
-		<h1>Damage Chart</h1>
 		<div style={{ maxWidth: 1000, maxHeight: 800 }}>
 			<DamageChart />
 		</div>
