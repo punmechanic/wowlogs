@@ -1,5 +1,5 @@
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { parse } from "date-fns";
+import { addMilliseconds, parse } from "date-fns";
 import { useEffect, useRef } from "react";
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
@@ -7,12 +7,11 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 Chart.register(zoomPlugin);
 
 interface PointTimeseries {
-	startTime: Date
 	datasets: {
 		name: string
 		points: {
-			// X is the number of milliseconds since the startTime that the event occurred.
-			x: number,
+			// X is the timestamp of the event.
+			x: Date,
 			// Y is the value of the event.
 			y: number
 		}[]
@@ -25,7 +24,7 @@ function generatePointTimeseries(labels: string[], pointsPerSet: number, startTi
 		for (let i = 0; i < pointsPerSet; i++) {
 			points.push({
 				y: Math.random() * 200,
-				x: i * offsetMillis
+				x: addMilliseconds(startTime, i * offsetMillis)
 			});
 		}
 
@@ -36,7 +35,6 @@ function generatePointTimeseries(labels: string[], pointsPerSet: number, startTi
 	});
 
 	return {
-		startTime,
 		datasets: sets
 	};
 }
@@ -69,9 +67,10 @@ function DamageChart() {
 				datasets: datasets.map(set => {
 					return {
 						label: set.name,
-						data: set.points,
+						data: set.points as any, // Cast to any lets us provide Date directly to ChartJS
 						fill: false,
-						cubicInterpolationMode: 'monotone' as const
+						cubicInterpolationMode: 'monotone' as const,
+						pointRadius: 0,
 					}
 				})
 			},
