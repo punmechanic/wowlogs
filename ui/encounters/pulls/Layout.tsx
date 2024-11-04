@@ -1,8 +1,38 @@
-import { Nav, NavItem } from "react-bootstrap";
-import { NavLink, Outlet } from "react-router-dom";
+import { Nav, Navbar, NavItem } from "react-bootstrap";
+import { LoaderFunctionArgs, NavLink, Outlet, useLoaderData } from "react-router-dom";
+import { ChevronRight } from "../../shared/icons";
+import cx from 'classnames';
+import styles from './Layout.module.css';
+
+interface Params {
+	encounterId: number
+	pullId: number
+}
+
+interface Data {
+	encounterName: string
+	pullName: string
+}
+
+export async function loadData({ params: { encounterId, pullId } }: LoaderFunctionArgs<Params>): Promise<Data> {
+	return {
+		encounterName: `Encounter #${encounterId}`,
+		pullName: `Pull #${pullId}`
+	};
+}
 
 export default function PullLayout() {
+	const { encounterName, pullName } = useLoaderData() as Data;
+
 	return <>
+		<Navbar className={styles.TitleBar}>
+			<div className={styles.CurrentPage}>
+				<span className={styles.EncounterName}>{encounterName}</span>
+				<i className={cx(styles.Divider, ChevronRight)} />
+				<span className={styles.PullName}>{pullName}</span>
+			</div>
+		</Navbar>
+
 		<Nav>
 			<NavItem>
 				<NavLink className='nav-link' to=''>Summary</NavLink>

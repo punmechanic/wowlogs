@@ -1,8 +1,7 @@
 import { loadData, Root } from './Root';
 import * as EncounterOverview from "./encounters/Overview";
-import EncounterLayout from "./encounters/Layout";
 import * as PullOverview from "./encounters/pulls/Overview";
-import PullLayout from './encounters/pulls/Layout';
+import * as PullLayout from './encounters/pulls/Layout';
 
 export default [
 	{
@@ -13,16 +12,16 @@ export default [
 	},
 	{
 		path: 'encounters/*',
-		element: <EncounterLayout />,
 		children: [
 			{
-				path: ':id',
+				path: ':encounterId',
 				loader: EncounterOverview.loadData,
 				element: <EncounterOverview.default />,
 			},
 			{
-				path: ":id/pulls/:number",
-				element: <PullLayout />,
+				path: ":encounterId/pulls/:pullId",
+				element: <PullLayout.default />,
+				loader: PullLayout.loadData,
 				children: [
 					{
 						index: true,
