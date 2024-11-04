@@ -4,7 +4,6 @@ import { ChevronRight, HouseFill } from "../../shared/icons";
 import { getPullsForEncounter, Pull } from "../../api/pulls";
 import cx from 'classnames';
 import styles from './Layout.module.css';
-import { fetchEncounterInfo } from "../../api/encounter";
 
 interface Params {
 	encounterId: string
@@ -12,47 +11,37 @@ interface Params {
 }
 
 interface Data {
-	encounterName: string
 	pullName: string
 	pulls: Pull[]
 }
 
 export async function loadData({ params: { encounterId, pullId } }: LoaderFunctionArgs<Params>): Promise<Data> {
-	const [pulls, encounter] = await Promise.all([
-		getPullsForEncounter(encounterId!),
-		fetchEncounterInfo(encounterId!)
-	]);
-
+	const pulls = await getPullsForEncounter(encounterId!);
 	const pullInfo = pulls.find(x => x.id === pullId);
 	return {
-		encounterName: encounter?.title!,
 		pullName: pullInfo?.title!,
 		pulls
 	};
 }
 
 function PullHeader() {
-	const { encounterName, pullName, pulls } = useLoaderData() as Data;
+	const { pullName, pulls } = useLoaderData() as Data;
 	return <Navbar className={styles.TitleBar}>
-		<NavLink className={cx(styles.HomeButton, HouseFill)} to='/'>Home</NavLink>
+		<Dropdown className={styles.PullDropdownButton}>
+			<DropdownToggle title={pullName}>{pullName}</DropdownToggle>
+			<DropdownMenu as='ol'>
+				{pulls.map(pull => (
+					<li key={pull.id}>
+						<DropdownItem key={pull.id}>
+							<NavLink relative="path" to={`../${pull.id}`}>{pull.title}</NavLink>
+						</DropdownItem>
+					</li>
+				))}
+			</DropdownMenu>
+		</Dropdown>
 
-		<div className={styles.CurrentPage}>
-			<span className={styles.EncounterName}>{encounterName}</span>
-			<i className={cx(styles.Divider, ChevronRight)} />
-			<Dropdown>
-				<DropdownToggle title={pullName}>{pullName}</DropdownToggle>
-				<DropdownMenu as='ol'>
-					{pulls.map(pull => (
-						<li key={pull.id}>
-							<DropdownItem key={pull.id}>
-								<NavLink relative="path" to={`../${pull.id}`}>{pull.title}</NavLink>
-							</DropdownItem>
-						</li>
-					))}
-				</DropdownMenu>
-			</Dropdown>
-		</div>
-	</Navbar>
+		<NavLink className={cx(styles.HomeButton, HouseFill)} to='/'>Home</NavLink>
+	</Navbar >
 }
 
 export default function PullLayout() {

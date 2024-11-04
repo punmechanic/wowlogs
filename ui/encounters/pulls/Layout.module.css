@@ -1,15 +1,9 @@
 .TitleBar {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 	border: solid 1px black;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
-.HomeButton {
-	grid-column: 1;
-}
-
-.CurrentPage {
-	grid-column: 2;
-	justify-self: center;
-}
