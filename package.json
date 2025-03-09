@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "vite dev",
+    "tauri": "tauri",
     "build": "vite build"
   },
   "keywords": [],
