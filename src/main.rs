@@ -1,16 +1,27 @@
 use std::str::FromStr;
 
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+#[derive(Serialize)]
+struct Report {
+    events: Vec<Record>,
+}
+
 fn main() {
-    println!("Hello, world!");
+    let mut report = Report { events: Vec::new() };
+    for record in std::io::stdin().lines() {
+        let record: Record = record.unwrap().parse().unwrap();
+        report.events.push(record);
+    }
+    serde_json::to_writer(std::io::stdout(), &report).unwrap();
 }
 
 /// An unprocessed log record.
 ///
 /// The only processing done to Records is to separate and parse the timestamp from the fields.
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Record {
     timestamp: NaiveDateTime,
     fields: Vec<String>,
