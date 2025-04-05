@@ -7,7 +7,7 @@
     "ui/index.html"
   ],
   "scripts": {
-    "dev": "vite dev",
+    "dev": "tauri dev",
     "tauri": "tauri",
     "build": "vite build"
   },
