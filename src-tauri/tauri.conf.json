@@ -35,5 +35,21 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "cli": {
+      "subcommands": {
+        "import": {
+          "description": "Import a log file into the application",
+          "args": [
+            {
+              "name": "file",
+              "description": "The path to the log file to import",
+              "required": true
+            }
+          ]
+        }
+      }
+    }
   }
 }
