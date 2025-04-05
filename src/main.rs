@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use chrono::NaiveDateTime;
+use clap::Parser;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -9,13 +10,45 @@ struct Report {
     events: Vec<Record>,
 }
 
+#[derive(clap::Parser, Debug)]
+struct App {
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(clap::Subcommand, Debug)]
+enum Command {
+    Import(ImportCommand),
+}
+
+#[derive(clap::Args, Debug)]
+struct ImportCommand {
+    #[arg(
+        help = "Input file containing the WoW combat log",
+        required = true,
+        default_value = "-"
+    )]
+    file: String,
+}
+
 fn main() {
-    let mut report = Report { events: Vec::new() };
-    for record in std::io::stdin().lines() {
-        let record: Record = record.unwrap().parse().unwrap();
-        report.events.push(record);
+    let app = App::parse();
+
+    match app.command {
+        Command::Import(import) => {
+            if import.file == "-" {
+                let mut report = Report { events: Vec::new() };
+                for record in std::io::stdin().lines() {
+                    let record: Record = record.unwrap().parse().unwrap();
+                    report.events.push(record);
+                }
+                serde_json::to_writer(std::io::stdout(), &report).unwrap();
+            } else {
+                eprintln!("The import command only supports reading from stdin at this time.");
+                std::process::exit(1);
+            }
+        }
     }
-    serde_json::to_writer(std::io::stdout(), &report).unwrap();
 }
 
 /// An unprocessed log record.
