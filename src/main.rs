@@ -24,13 +24,22 @@ impl Report {
         )?;
 
         for event in &self.events {
-            tx.execute(
-                "INSERT INTO events (`timestamp`, fields, `fk_log_id`) VALUES (?1, ?2, ?3)",
-                rusqlite::params![event.timestamp, serde_json::to_string(&event.fields)?, pk],
-            )?;
+            event.save_transaction(&tx, pk)?;
         }
 
         tx.commit()?;
+
+        Ok(())
+    }
+}
+
+impl Record {
+    fn save_transaction(&self, tx: &rusqlite::Transaction, log_id: u64) -> anyhow::Result<()> {
+        // Insert the record into the events table.
+        tx.execute(
+            "INSERT INTO events (`timestamp`, fields, `fk_log_id`) VALUES (?1, ?2, ?3)",
+            rusqlite::params![self.timestamp, serde_json::to_string(&self.fields)?, log_id],
+        )?;
 
         Ok(())
     }
