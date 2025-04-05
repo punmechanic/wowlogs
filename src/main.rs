@@ -12,6 +12,12 @@ struct Report {
 
 #[derive(clap::Parser, Debug)]
 struct App {
+    #[arg(
+        long,
+        help = "Path to the SQLite database file where the report will be stored",
+        default_value = "sqlite.db"
+    )]
+    database_path: String,
     #[command(subcommand)]
     command: Command,
 }
@@ -33,6 +39,10 @@ struct ImportCommand {
 
 fn main() {
     let app = App::parse();
+    let db = sqlite::open(app.database_path).unwrap_or_else(|e| {
+        eprintln!("Failed to open database: {}", e);
+        std::process::exit(1);
+    });
 
     match app.command {
         Command::Import(import) => {
