@@ -12,6 +12,30 @@ struct Report {
     events: Vec<Record>,
 }
 
+impl Report {
+    fn save(self, db: &mut rusqlite::Connection) -> anyhow::Result<()> {
+        let tx = db.transaction()?;
+        tx.execute("INSERT INTO logs DEFAULT VALUES;", rusqlite::params![])?;
+
+        let pk: u64 = tx.query_row(
+            "SELECT id FROM logs WHERE rowid = ?1;",
+            rusqlite::params![tx.last_insert_rowid()],
+            |row| row.get(0),
+        )?;
+
+        for event in &self.events {
+            tx.execute(
+                "INSERT INTO events (`timestamp`, fields, `fk_log_id`) VALUES (?1, ?2, ?3)",
+                rusqlite::params![event.timestamp, serde_json::to_string(&event.fields)?, pk],
+            )?;
+        }
+
+        tx.commit()?;
+
+        Ok(())
+    }
+}
+
 #[derive(clap::Parser, Debug)]
 struct App {
     #[arg(
@@ -64,7 +88,11 @@ fn main() {
                     let record: Record = record.unwrap().parse().unwrap();
                     report.events.push(record);
                 }
-                serde_json::to_writer(std::io::stdout(), &report).unwrap();
+
+                report.save(&mut db).unwrap_or_else(|e| {
+                    eprintln!("Failed to save report to database: {}", e);
+                    std::process::exit(1);
+                });
             } else {
                 eprintln!("The import command only supports reading from stdin at this time.");
                 std::process::exit(1);
