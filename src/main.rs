@@ -5,6 +5,8 @@ use clap::Parser;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+mod migrations;
+
 #[derive(Serialize)]
 struct Report {
     events: Vec<Record>,
@@ -39,10 +41,20 @@ struct ImportCommand {
 
 fn main() {
     let app = App::parse();
-    let db = sqlite::open(app.database_path).unwrap_or_else(|e| {
+    let mut db = rusqlite::Connection::open(app.database_path).unwrap_or_else(|e| {
         eprintln!("Failed to open database: {}", e);
         std::process::exit(1);
     });
+
+    let report = migrations::run(&mut db).unwrap();
+    let migrations = report.applied_migrations();
+    if migrations.is_empty() {
+        println!("No migrations were applied.");
+    } else {
+        for migration in migrations {
+            println!("Applied migration: {}", migration);
+        }
+    }
 
     match app.command {
         Command::Import(import) => {
